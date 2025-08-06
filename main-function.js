@@ -2,13 +2,10 @@ alert("Hello World");
 
 
 document.addEventListener("DOMContentLoaded", function() {
-    // Try to find the element by id first, then by class
-    let container = document.getElementById('three-render');
+    // Try to find the element by id first, then by class, searching the entire document (global level)
+    let container = document.querySelector('#three-render, .three-render');
     if (!container) {
-      container = document.querySelector('.three-render');
-    }
-    if (!container) {
-      console.error('No element with id or class "three-render" found.');
+      console.error('No element with id or class "three-render" found in the document.');
       return;
     }
   

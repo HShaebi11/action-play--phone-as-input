@@ -1,13 +1,95 @@
+const dial = document.getElementById("dial");
+const valueDisplay = document.getElementById("value");
 
-  // Create a PeerJS instance for the render page
-  const peer = new Peer('render-device');
+let isDragging = false;
+let centerX, centerY;
+let lastAngle = 0;
+let currentRotation = 0;
 
-  peer.on('connection', function(conn) {
-    conn.on('data', function(data) {
-      // data: { dial } - using dial value for x position
-      if (window.cube) {
-        const dialValue = parseFloat(data.dial) || 0;
-        window.cube.position.set(dialValue, window.cube.position.y, window.cube.position.z);
-      }
-    });
+const stepSize = 15; // degrees per snap step
+
+function getAngle(x, y) {
+  const dx = x - centerX;
+  const dy = y - centerY;
+  return Math.atan2(dy, dx) * (180 / Math.PI);
+}
+
+function normalize(deg) {
+  return ((deg % 360) + 360) % 360;
+}
+
+function snap(deg, step) {
+  return Math.round(deg / step) * step;
+}
+
+function startDrag(x, y) {
+  const rect = dial.getBoundingClientRect();
+  centerX = rect.left + rect.width / 2;
+  centerY = rect.top + rect.height / 2;
+  lastAngle = getAngle(x, y);
+  isDragging = true;
+}
+
+function updateDrag(x, y) {
+  if (!isDragging) return;
+
+  const angle = getAngle(x, y);
+  let delta = angle - lastAngle;
+
+  if (delta > 180) delta -= 360;
+  if (delta < -180) delta += 360;
+
+  currentRotation += delta;
+  currentRotation = normalize(currentRotation);
+  const snapped = snap(currentRotation, stepSize);
+
+  dial.style.transform = `rotate(${snapped}deg)`;
+  valueDisplay.textContent = `Rotation: ${snapped}°`;
+
+  lastAngle = angle;
+}
+
+// MOUSE EVENTS
+dial.addEventListener("mousedown", (e) => {
+  startDrag(e.clientX, e.clientY);
+});
+
+window.addEventListener("mousemove", (e) => {
+  updateDrag(e.clientX, e.clientY);
+});
+
+window.addEventListener("mouseup", () => {
+  isDragging = false;
+});
+
+// TOUCH EVENTS
+dial.addEventListener("touchstart", (e) => {
+  e.preventDefault();
+  const touch = e.touches[0];
+  startDrag(touch.clientX, touch.clientY);
+});
+
+window.addEventListener("touchmove", (e) => {
+  if (!isDragging) return;
+  e.preventDefault();
+  const touch = e.touches[0];
+  updateDrag(touch.clientX, touch.clientY);
+}, { passive: false });
+
+window.addEventListener("touchend", () => {
+  isDragging = false;
+});
+
+
+// Create a PeerJS instance for the render page
+const peer = new Peer('macbook');
+
+peer.on('connection', function (conn) {
+  conn.on('data', function (data) {
+    // data: { dial } - using dial value for x position
+    if (window.cube) {
+      const dialValue = parseFloat(data.dial) || 0;
+      window.cube.position.set(dialValue, window.cube.position.y, window.cube.position.z);
+    }
   });
+});

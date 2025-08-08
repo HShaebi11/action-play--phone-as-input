@@ -1,10 +1,10 @@
   // Replace with your own unique ID for the input device
-  const peer = new Peer('input-device');
+  const peer = new Peer('iphone');
   let conn;
 
   // Connect to the render device when ready
   function connectToRender() {
-    conn = peer.connect('render-device');
+    conn = peer.connect('macbook');
     conn.on('open', function() {
       // Send initial dial value
       sendDialValue();

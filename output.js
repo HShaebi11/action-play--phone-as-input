@@ -4,9 +4,10 @@
 
   peer.on('connection', function(conn) {
     conn.on('data', function(data) {
-      // data: { x, y, z }
+      // data: { dial } - using dial value for x position
       if (window.cube) {
-        window.cube.position.set(data.x, data.y, data.z);
+        const dialValue = parseFloat(data.dial) || 0;
+        window.cube.position.set(dialValue, window.cube.position.y, window.cube.position.z);
       }
     });
   });

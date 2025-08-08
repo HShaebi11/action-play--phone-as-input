@@ -6,23 +6,19 @@
   function connectToRender() {
     conn = peer.connect('render-device');
     conn.on('open', function() {
-      // Send initial position
-      sendPosition();
+      // Send initial dial value
+      sendDialValue();
     });
   }
 
-  // Send position data to render device
-  function sendPosition() {
+  // Send dial value to render device
+  function sendDialValue() {
     if (!conn || conn.open === false) return;
-    const x = parseFloat(document.getElementById('postion-x').value) || 0;
-    const y = parseFloat(document.getElementById('postion-y').value) || 0;
-    const z = parseFloat(document.getElementById('postion-z').value) || 0;
-    conn.send({ x, y, z });
+    const dialValue = parseFloat(document.getElementById('dial').value) || 0;
+    conn.send({ dial: dialValue });
   }
 
-  // Listen for input changes
-  ['postion-x', 'postion-y', 'postion-z'].forEach(id => {
-    document.getElementById(id).addEventListener('input', sendPosition);
-  });
+  // Listen for dial input changes
+  document.getElementById('dial').addEventListener('input', sendDialValue);
 
   peer.on('open', connectToRender);

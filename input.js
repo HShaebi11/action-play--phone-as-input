@@ -11,14 +11,14 @@
     });
   }
 
+  // Listen for dial input changes
+  document.getElementById('value').addEventListener('input', sendDialValue);
+
   // Send dial value to render device
   function sendDialValue() {
     if (!conn || conn.open === false) return;
-    const dialValue = parseFloat(document.getElementById('dial').value) || 0;
+    const dialValue = parseFloat(document.getElementById('value').value) || 0;
     conn.send({ dial: dialValue });
   }
-
-  // Listen for dial input changes
-  document.getElementById('dial').addEventListener('input', sendDialValue);
 
   peer.on('open', connectToRender);
